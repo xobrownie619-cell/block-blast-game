@@ -1,115 +1,189 @@
 :root {
-    --bg-dark: #121225;
-    --grid-bg: #1e2a47;
-    --accent: #ff0055;
-    --primary: #4e54c8;
+    --bg-color: #1a1a2e;
+    --primary: #ff0055;
+    --secondary: #4e54c8;
+    --text-white: #ffffff;
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent; /* Removes blue tap box on iPhone */
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, sans-serif;
-    background-color: var(--bg-dark);
-    color: white;
     margin: 0;
-    overflow: hidden;
-    touch-action: none;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-white);
     height: 100vh;
+    width: 100vw;
+    overflow: hidden;
     user-select: none;
 }
 
-/* --- SCREENS --- */
-#splash-screen, #mode-screen {
-    position: fixed; top: 0; left: 0;
-    width: 100%; height: 100%;
-    display: flex; justify-content: center; align-items: center;
+/* UTILITY: Force Center */
+.full-screen-center {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
     background: linear-gradient(135deg, #1f1c2c, #928dab);
-    z-index: 100;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
 }
+
 .hidden { display: none !important; }
 
-.content-center { text-align: center; z-index: 2; position: relative; }
-
-.logo {
-    font-size: 60px; font-weight: 900; margin: 0;
-    background: -webkit-linear-gradient(#ffdd00, #ff5500);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 5px 15px rgba(255,100,0,0.4));
-    animation: floatLogo 3s ease-in-out infinite;
+/* CONTENT BOXES */
+.content-box {
+    text-align: center;
+    z-index: 20;
+    width: 90%;
+    max-width: 400px;
 }
 
-.main-btn {
-    background: white; color: var(--primary);
-    padding: 15px 50px; font-size: 20px; font-weight: bold;
-    border: none; border-radius: 50px; margin-top: 40px;
-    box-shadow: 0 0 20px rgba(255,255,255,0.4);
+/* LOGO */
+.logo {
+    font-size: 55px;
+    line-height: 1;
+    font-weight: 900;
+    margin-bottom: 5px;
+    background: -webkit-linear-gradient(#ffcc00, #ff0055);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.5));
+}
+
+.subtitle {
+    font-size: 14px;
+    letter-spacing: 4px;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 50px;
+}
+
+/* BUTTONS */
+.pulse-btn {
+    background: white;
+    color: var(--primary);
+    border: none;
+    padding: 20px 50px;
+    font-size: 20px;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
     animation: pulse 1.5s infinite;
 }
 
-/* MODE CARDS */
-.mode-cards { display: flex; gap: 20px; margin-top: 30px; }
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* MODE SELECTION */
+.screen-title { font-size: 24px; margin-bottom: 30px; }
+
+.mode-container {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
 .mode-card {
-    background: rgba(255,255,255,0.1);
-    padding: 30px; border-radius: 20px;
-    border: 2px solid rgba(255,255,255,0.2);
-    cursor: pointer; transition: 0.2s;
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 20px;
+    color: white;
+    cursor: pointer;
+    width: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: 0.2s;
 }
-.mode-card:active { transform: scale(0.95); background: rgba(255,255,255,0.2); }
-.mode-card i { font-size: 40px; margin-bottom: 10px; color: #ffcc00; }
 
-.back-btn { background: none; border: none; color: #aaa; margin-top: 30px; padding: 10px; }
+.mode-card:active { background: rgba(255,255,255,0.2); transform: scale(0.95); }
+.mode-card i { font-size: 35px; margin-bottom: 10px; color: #ffcc00; }
+.mode-card span { font-weight: bold; font-size: 18px; }
+.mode-card small { font-size: 12px; color: #ccc; }
 
-/* --- GAME UI --- */
-.header {
+.text-btn { background: none; border: none; color: #aaa; padding: 10px; font-size: 16px; }
+
+/* GAME HEADER */
+.game-header {
+    position: absolute; top: 0; left: 0; width: 100%;
     display: flex; justify-content: space-between; align-items: center;
-    padding: 15px 20px; width: 100%; box-sizing: border-box;
+    padding: 15px 20px;
+    z-index: 30;
 }
-.score-box { text-align: center; background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 10px; }
-.score-box span:first-child { font-size: 10px; color: #aaa; display: block; }
-.score-box span:last-child { font-size: 20px; font-weight: bold; }
+
+.score-display { display: flex; gap: 15px; }
+.score-item { text-align: center; background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 8px; }
+.score-item .label { display: block; font-size: 10px; color: #aaa; }
+.score-item span { font-size: 20px; font-weight: bold; }
+.icon-btn { background: none; border: none; color: white; font-size: 22px; cursor: pointer; }
+
+/* GRID */
+.grid-container {
+    display: flex; justify-content: center; align-items: center;
+    margin-top: 60px; /* Space for header */
+}
 
 .grid {
-    display: grid; gap: 4px; background: var(--grid-bg);
-    padding: 8px; border-radius: 12px; margin: 0 auto;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    display: grid;
+    gap: 4px;
+    background-color: #1e2a47;
+    padding: 10px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
-.cell { background: #2b3b5f; border-radius: 6px; transition: background 0.1s; }
-.taken { box-shadow: inset 0 -4px 0 rgba(0,0,0,0.3); }
 
-/* GHOST PREVIEW */
-.ghost { opacity: 0.5; box-shadow: none !important; }
+.cell { background-color: #2b3b5f; border-radius: 6px; }
+.taken { box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2); }
+.ghost { opacity: 0.4; }
 
 /* SHAPES */
 .shapes-container {
-    display: flex; justify-content: space-evenly; align-items: center;
-    height: 140px; width: 100%; position: absolute; bottom: 0;
+    position: absolute; bottom: 30px;
+    width: 100%;
+    display: flex; justify-content: space-evenly;
+    height: 100px;
+    align-items: center;
 }
+
 .shape-option { display: grid; gap: 2px; }
 .mini-cell { width: 25px; height: 25px; border-radius: 4px; }
 
 /* MODAL */
-#game-over-modal {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.95); z-index: 2000;
-    display: flex; justify-content: center; align-items: center;
-}
-.modal-content {
-    background: #1e2a47; padding: 40px; border-radius: 20px;
-    text-align: center; border: 2px solid var(--accent); width: 80%;
+#game-over-modal { background: rgba(0,0,0,0.9); z-index: 100; }
+.modal-box {
+    background: #1e2a47; padding: 30px; border-radius: 20px; width: 85%; max-width: 320px;
+    border: 2px solid var(--primary); text-align: center;
 }
 .revive-btn {
-    background: #ffcc00; color: #000; width: 100%; padding: 15px;
-    border: none; border-radius: 10px; font-weight: bold; margin-bottom: 10px;
+    width: 100%; background: #ffcc00; border: none; padding: 15px;
+    border-radius: 10px; font-weight: bold; font-size: 16px; margin: 15px 0; color: #000;
 }
 .restart-btn {
-    background: var(--primary); color: white; width: 100%; padding: 15px;
-    border: none; border-radius: 10px; margin-bottom: 10px;
+    width: 100%; background: var(--secondary); border: none; padding: 15px;
+    border-radius: 10px; color: white; font-size: 16px; margin-bottom: 10px;
 }
-.exit-btn { background: none; border: 1px solid #555; color: #888; padding: 10px 30px; border-radius: 20px; }
+.exit-btn { background: none; border: 1px solid #555; color: #888; padding: 8px 20px; border-radius: 20px; }
 
-/* DRAGGING */
+/* DRAGGING MIRROR */
 .draggable-mirror {
-    position: fixed; pointer-events: none; z-index: 999;
-    opacity: 0.9; transform: scale(1.1) translateY(-80px);
+    position: fixed; pointer-events: none; z-index: 9999;
+    opacity: 0.9; transform: scale(1.2) translateY(-80px);
 }
 
-@keyframes floatLogo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+/* BACKGROUND ANIMATION */
+.animated-bg {
+    position: absolute; top:0; left:0; width:100%; height:100%; z-index: 1; opacity: 0.3;
+}
