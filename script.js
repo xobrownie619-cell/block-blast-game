@@ -1,160 +1,236 @@
 const gridElement = document.getElementById('game-grid');
 const shapesContainer = document.getElementById('shapes-container');
 const scoreElement = document.getElementById('score');
+const modal = document.getElementById('game-over-modal');
+const finalScore = document.getElementById('final-score');
 
-let grid = []; // The 8x8 logical grid
+let grid = [];
 let score = 0;
-let selectedShape = null; // The shape currently waiting to be placed
-let selectedShapeIndex = null; // Which of the 3 slots did it come from?
+const gridSize = 8;
 
-// 1. Initialize the Game
+// Colors for different shapes
+const COLORS = [
+    '#ff3f34', '#0fb9b1', '#f7b731', '#a55eea', '#2bcbba'
+];
+
 function initGame() {
-    grid = Array(8).fill(null).map(() => Array(8).fill(0));
+    grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(0));
     score = 0;
     scoreElement.innerText = score;
+    modal.classList.add('hidden');
     renderGrid();
     generateNewShapes();
 }
 
-// 2. Draw the 8x8 Grid on screen
 function renderGrid() {
     gridElement.innerHTML = '';
-    for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
+    for (let r = 0; r < gridSize; r++) {
+        for (let c = 0; c < gridSize; c++) {
             const cell = document.createElement('div');
             cell.classList.add('cell');
-            if (grid[r][c] === 1) {
+            cell.dataset.row = r;
+            cell.dataset.col = c;
+            
+            if (grid[r][c] !== 0) {
                 cell.classList.add('taken');
+                cell.style.backgroundColor = grid[r][c]; // Use the stored color
             }
-            // Add click listener to PLACE the shape
-            cell.onclick = () => placeShapeOnGrid(r, c);
             gridElement.appendChild(cell);
         }
     }
 }
 
-// 3. Define Shapes (Like Tetris pieces)
 const shapes = [
-    [[1, 1, 1]],             // Line of 3
-    [[1], [1], [1]],         // Vertical line of 3
-    [[1, 1], [1, 1]],        // 2x2 Square
-    [[1, 1], [1, 0]],        // L-shape
-    [[1]]                    // Single dot
+    [[1, 1, 1]], 
+    [[1], [1], [1]], 
+    [[1, 1], [1, 1]], 
+    [[1, 1], [1, 0]],
+    [[1, 1, 1], [0, 1, 0]], // T shape
+    [[1]]
 ];
-
-let currentHand = []; // The 3 shapes currently available to play
 
 function generateNewShapes() {
     shapesContainer.innerHTML = '';
-    currentHand = [];
-    
-    // Create 3 random shapes
     for (let i = 0; i < 3; i++) {
-        const randomShape = shapes[Math.floor(Math.random() * shapes.length)];
-        currentHand.push(randomShape);
-        
-        // Create the visual representation for the user to click
-        const shapeWrapper = document.createElement('div');
-        shapeWrapper.classList.add('shape-option');
-        shapeWrapper.style.gridTemplateColumns = `repeat(${randomShape[0].length}, 20px)`;
-        
-        // Draw the mini-shape
-        randomShape.forEach(row => {
-            row.forEach(cell => {
-                const miniCell = document.createElement('div');
-                if (cell === 1) miniCell.classList.add('mini-cell');
-                shapeWrapper.appendChild(miniCell);
-            });
-        });
-
-        // Click to SELECT this shape
-        shapeWrapper.onclick = () => selectShape(randomShape, i, shapeWrapper);
-        shapesContainer.appendChild(shapeWrapper);
+        createShapeElement();
     }
 }
 
-function selectShape(shape, index, element) {
-    // Remove 'selected' style from all others
-    document.querySelectorAll('.shape-option').forEach(el => el.classList.remove('selected'));
+function createShapeElement() {
+    const shapeIdx = Math.floor(Math.random() * shapes.length);
+    const shapeMatrix = shapes[shapeIdx];
+    const color = COLORS[Math.floor(Math.random() * COLORS.length)];
+
+    const shapeWrapper = document.createElement('div');
+    shapeWrapper.classList.add('shape-option');
+    shapeWrapper.style.gridTemplateColumns = `repeat(${shapeMatrix[0].length}, 20px)`;
     
-    // Highlight this one
-    element.classList.add('selected');
-    selectedShape = shape;
-    selectedShapeIndex = index;
+    // Store data for drag logic
+    shapeWrapper.dataset.matrix = JSON.stringify(shapeMatrix);
+    shapeWrapper.dataset.color = color;
+
+    shapeMatrix.forEach(row => {
+        row.forEach(cellVal => {
+            const miniCell = document.createElement('div');
+            if (cellVal === 1) {
+                miniCell.classList.add('mini-cell');
+                miniCell.style.backgroundColor = color;
+            }
+            shapeWrapper.appendChild(miniCell);
+        });
+    });
+
+    // Add Touch/Mouse Listeners for Dragging
+    shapeWrapper.addEventListener('touchstart', handleTouchStart, {passive: false});
+    shapeWrapper.addEventListener('mousedown', handleMouseDown);
+    
+    shapesContainer.appendChild(shapeWrapper);
 }
 
-// 4. Logic to Place the Shape
-function placeShapeOnGrid(row, col) {
-    if (!selectedShape) return; // No shape selected
+// --- DRAG AND DROP LOGIC ---
 
-    // Check if it fits
-    if (canPlace(row, col, selectedShape)) {
-        // Update the grid logic
-        for (let r = 0; r < selectedShape.length; r++) {
-            for (let c = 0; c < selectedShape[0].length; c++) {
-                if (selectedShape[r][c] === 1) {
-                    grid[row + r][col + c] = 1;
+let draggedElement = null;
+let mirrorElement = null; // The visual copy moving with finger
+let currentShapeMatrix = null;
+let currentColor = null;
+
+function handleTouchStart(e) {
+    e.preventDefault(); // Stop scrolling
+    startDrag(e.touches[0], e.currentTarget);
+}
+
+function handleMouseDown(e) {
+    startDrag(e, e.currentTarget);
+}
+
+function startDrag(event, originalElement) {
+    draggedElement = originalElement;
+    currentShapeMatrix = JSON.parse(draggedElement.dataset.matrix);
+    currentColor = draggedElement.dataset.color;
+
+    // Create a clone to follow the finger
+    mirrorElement = originalElement.cloneNode(true);
+    mirrorElement.classList.add('draggable-mirror');
+    mirrorElement.style.width = originalElement.offsetWidth + 'px';
+    document.body.appendChild(mirrorElement);
+
+    moveMirror(event);
+
+    document.addEventListener('touchmove', handleTouchMove, {passive: false});
+    document.addEventListener('touchend', handleTouchEnd);
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+}
+
+function handleTouchMove(e) {
+    e.preventDefault();
+    moveMirror(e.touches[0]);
+}
+
+function handleMouseMove(e) {
+    moveMirror(e);
+}
+
+function moveMirror(coords) {
+    if (!mirrorElement) return;
+    // Center the shape under finger
+    mirrorElement.style.left = (coords.clientX - mirrorElement.offsetWidth / 2) + 'px';
+    mirrorElement.style.top = (coords.clientY - mirrorElement.offsetHeight / 2) + 'px';
+}
+
+function handleTouchEnd(e) {
+    const touch = e.changedTouches[0];
+    dropShape(touch.clientX, touch.clientY);
+    cleanupDrag();
+}
+
+function handleMouseUp(e) {
+    dropShape(e.clientX, e.clientY);
+    cleanupDrag();
+}
+
+function cleanupDrag() {
+    if (mirrorElement) mirrorElement.remove();
+    mirrorElement = null;
+    document.removeEventListener('touchmove', handleTouchMove);
+    document.removeEventListener('touchend', handleTouchEnd);
+    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mouseup', handleMouseUp);
+}
+
+function dropShape(x, y) {
+    // Hide mirror to see what's underneath
+    mirrorElement.style.display = 'none';
+    const elementBelow = document.elementFromPoint(x, y);
+    
+    // Check if we dropped on a grid cell
+    const cell = elementBelow ? elementBelow.closest('.cell') : null;
+    
+    if (cell) {
+        const r = parseInt(cell.dataset.row);
+        const c = parseInt(cell.dataset.col);
+        
+        // We need to adjust placement because user drags by center, 
+        // but grid logic starts at top-left.
+        // Simple fix: Try to center the shape around the dropped cell.
+        const rowOffset = Math.floor(currentShapeMatrix.length / 2);
+        const colOffset = Math.floor(currentShapeMatrix[0].length / 2);
+
+        attemptPlace(r - rowOffset, c - colOffset);
+    }
+}
+
+function attemptPlace(row, col) {
+    if (canPlace(row, col, currentShapeMatrix)) {
+        // Place it
+        for (let r = 0; r < currentShapeMatrix.length; r++) {
+            for (let c = 0; c < currentShapeMatrix[0].length; c++) {
+                if (currentShapeMatrix[r][c] === 1) {
+                    grid[row + r][col + c] = currentColor;
                 }
             }
         }
-
-        // Remove shape from the "hand" (UI)
-        const allShapes = shapesContainer.children;
-        allShapes[selectedShapeIndex].style.visibility = 'hidden'; // Hide it
-        allShapes[selectedShapeIndex].onclick = null; // Disable clicking
         
-        // Reset selection
-        selectedShape = null;
-        selectedShapeIndex = null;
-
-        // Re-draw grid with new block
+        draggedElement.remove(); // Remove from hand
         renderGrid();
-        
-        // Check for cleared lines
         checkLines();
-
-        // Check if hand is empty, then refill
-        if (Array.from(allShapes).every(s => s.style.visibility === 'hidden')) {
+        
+        if (shapesContainer.children.length === 0) {
             generateNewShapes();
+        } else {
+            checkGameOver();
         }
     }
 }
 
-// Helper: Check if shape fits at (row, col)
 function canPlace(row, col, shape) {
     for (let r = 0; r < shape.length; r++) {
         for (let c = 0; c < shape[0].length; c++) {
             if (shape[r][c] === 1) {
-                // Check bounds (is it outside the 8x8 grid?)
-                if (row + r >= 8 || col + c >= 8) return false;
-                // Check overlap (is there already a block there?)
-                if (grid[row + r][col + c] === 1) return false;
+                if (row + r < 0 || row + r >= 8 || col + c < 0 || col + c >= 8) return false;
+                if (grid[row + r][col + c] !== 0) return false;
             }
         }
     }
     return true;
 }
 
-// 5. Check and Clear Lines
 function checkLines() {
     let linesCleared = 0;
-
-    // Check Rows
+    
+    // Rows
     for (let r = 0; r < 8; r++) {
-        if (grid[r].every(cell => cell === 1)) {
-            grid[r].fill(0); // Clear logic
+        if (grid[r].every(val => val !== 0)) {
+            grid[r].fill(0);
             linesCleared++;
         }
     }
-
-    // Check Columns
+    // Columns
     for (let c = 0; c < 8; c++) {
         let colFull = true;
-        for (let r = 0; r < 8; r++) {
-            if (grid[r][c] === 0) colFull = false;
-        }
+        for (let r = 0; r < 8; r++) if (grid[r][c] === 0) colFull = false;
         if (colFull) {
-            for (let r = 0; r < 8; r++) grid[r][c] = 0; // Clear logic
+            for (let r = 0; r < 8; r++) grid[r][c] = 0;
             linesCleared++;
         }
     }
@@ -162,7 +238,30 @@ function checkLines() {
     if (linesCleared > 0) {
         score += linesCleared * 100;
         scoreElement.innerText = score;
-        renderGrid(); // Redraw grid after clearing
+        renderGrid(); // Re-render to show cleared lines
+    }
+}
+
+function checkGameOver() {
+    // Check if ANY shape in hand can fit ANYWHERE
+    const shapesInHand = Array.from(shapesContainer.children);
+    let canMove = false;
+
+    for (let el of shapesInHand) {
+        const matrix = JSON.parse(el.dataset.matrix);
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                if (canPlace(r, c, matrix)) {
+                    canMove = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!canMove) {
+        finalScore.innerText = score;
+        modal.classList.remove('hidden');
     }
 }
 
@@ -170,5 +269,4 @@ function restartGame() {
     initGame();
 }
 
-// Start immediately
 initGame();
