@@ -3,70 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Block Blast Pro</title>
+    <title>Block Blast Final</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-    <div id="splash-screen">
+    <div id="splash-screen" class="full-screen-center">
         <div class="animated-bg" id="home-bg"></div>
-        <div class="content-center">
+        <div class="content-box">
             <h1 class="logo">BLOCK<br>BLAST</h1>
-            <p class="subtitle">ULTIMATE</p>
-            <button class="main-btn" onclick="showModeScreen()">
+            <p class="subtitle">ULTIMATE EDITION</p>
+            <button class="pulse-btn" onclick="goToModes()">
                 TAP TO START
             </button>
         </div>
     </div>
 
-    <div id="mode-screen" class="hidden">
-        <div class="content-center">
-            <h2>CHOOSE MODE</h2>
-            <div class="mode-cards">
-                <div class="mode-card" onclick="startGame(8)">
+    <div id="mode-screen" class="full-screen-center hidden">
+        <div class="content-box">
+            <h2 class="screen-title">SELECT MODE</h2>
+            <div class="mode-container">
+                <button class="mode-card" onclick="startGame(8)">
                     <i class="fas fa-cube"></i>
-                    <h3>CLASSIC</h3>
-                    <p>8x8 Grid</p>
-                </div>
-                <div class="mode-card" onclick="startGame(10)">
+                    <span>CLASSIC</span>
+                    <small>8x8 Grid</small>
+                </button>
+                <button class="mode-card" onclick="startGame(10)">
                     <i class="fas fa-cubes"></i>
-                    <h3>MASTER</h3>
-                    <p>10x10 Grid</p>
-                </div>
+                    <span>MASTER</span>
+                    <small>10x10 Grid</small>
+                </button>
             </div>
-            <button class="back-btn" onclick="goBackToSplash()">Back</button>
+            <button class="text-btn" onclick="goBackHome()">Go Back</button>
         </div>
     </div>
 
-    <div id="game-wrapper" class="hidden">
-        <div class="header">
-            <button class="icon-btn" onclick="goHome()"><i class="fas fa-home"></i></button>
-            <div class="score-container">
-                <div class="score-box"><span>BEST</span><span id="best-score">0</span></div>
-                <div class="score-box main"><span>SCORE</span><span id="score">0</span></div>
+    <div id="game-wrapper" class="full-screen-center hidden">
+        <div class="game-header">
+            <button class="icon-btn" onclick="goBackHome()"><i class="fas fa-home"></i></button>
+            <div class="score-display">
+                <div class="score-item">
+                    <span class="label">BEST</span>
+                    <span id="best-score">0</span>
+                </div>
+                <div class="score-item highlight">
+                    <span class="label">SCORE</span>
+                    <span id="score">0</span>
+                </div>
             </div>
-            <button class="icon-btn" onclick="toggleSound()"><i class="fas fa-volume-up" id="sound-icon"></i></button>
+            <button class="icon-btn" onclick="toggleSound()"><i id="sound-icon" class="fas fa-volume-up"></i></button>
         </div>
         
         <div class="grid-container">
             <div class="grid" id="game-grid"></div>
-            <div id="particles-container"></div>
-            <div id="float-text-container"></div>
         </div>
 
         <div class="shapes-container" id="shapes-container"></div>
     </div>
 
-    <div id="game-over-modal" class="hidden">
-        <div class="modal-content">
+    <div id="game-over-modal" class="full-screen-center hidden">
+        <div class="modal-box">
             <h2>NO MOVES!</h2>
             <p>Score: <span id="final-score">0</span></p>
+            
             <button class="revive-btn" onclick="reviveGame()">
-                <i class="fas fa-bomb"></i> BLAST AREA (Revive)
+                <i class="fas fa-bomb"></i> BLAST BOARD (Revive)
             </button>
+            
             <button class="restart-btn" onclick="restartGame()">Try Again</button>
-            <button class="exit-btn" onclick="goHome()">Exit</button>
+            <button class="exit-btn" onclick="goBackHome()">Exit Game</button>
         </div>
     </div>
 
