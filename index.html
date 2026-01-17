@@ -2,21 +2,27 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Block Blast Replica</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Block Blast V2</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="game-container">
-        <h1>Block Blast V1</h1>
+        <h1>Block Blast!</h1>
         <div class="score-board">Score: <span id="score">0</span></div>
         
         <div class="grid" id="game-grid"></div>
 
         <div class="shapes-container" id="shapes-container"></div>
-        
-        <button onclick="restartGame()" class="restart-btn">Restart Game</button>
+    </div>
+
+    <div id="game-over-modal" class="hidden">
+        <div class="modal-content">
+            <h2>Game Over!</h2>
+            <p>Final Score: <span id="final-score">0</span></p>
+            <button onclick="restartGame()">Try Again</button>
+        </div>
     </div>
 
     <script src="script.js"></script>
