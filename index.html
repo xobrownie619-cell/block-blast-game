@@ -3,48 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Block Blast Adventure</title>
+    <title>Block Blast Pro</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-    <div id="home-screen">
+    <div id="splash-screen">
         <div class="animated-bg" id="home-bg"></div>
-        <div class="home-content">
+        <div class="content-center">
             <h1 class="logo">BLOCK<br>BLAST</h1>
-            <p class="subtitle">ADVENTURE</p>
-            
-            <div class="difficulty-select">
-                <p>SELECT MODE</p>
-                <div class="mode-buttons">
-                    <button class="mode-btn selected" onclick="setDifficulty(8)">
-                        <i class="fas fa-cube"></i> Classic (8x8)
-                    </button>
-                    <button class="mode-btn" onclick="setDifficulty(10)">
-                        <i class="fas fa-cubes"></i> Master (10x10)
-                    </button>
-                </div>
-            </div>
-
-            <button class="play-btn-large" onclick="startGame()">
-                PLAY <i class="fas fa-play"></i>
+            <p class="subtitle">ULTIMATE</p>
+            <button class="main-btn" onclick="showModeScreen()">
+                TAP TO START
             </button>
         </div>
     </div>
 
-    <div class="game-wrapper hidden" id="game-wrapper">
+    <div id="mode-screen" class="hidden">
+        <div class="content-center">
+            <h2>CHOOSE MODE</h2>
+            <div class="mode-cards">
+                <div class="mode-card" onclick="startGame(8)">
+                    <i class="fas fa-cube"></i>
+                    <h3>CLASSIC</h3>
+                    <p>8x8 Grid</p>
+                </div>
+                <div class="mode-card" onclick="startGame(10)">
+                    <i class="fas fa-cubes"></i>
+                    <h3>MASTER</h3>
+                    <p>10x10 Grid</p>
+                </div>
+            </div>
+            <button class="back-btn" onclick="goBackToSplash()">Back</button>
+        </div>
+    </div>
+
+    <div id="game-wrapper" class="hidden">
         <div class="header">
             <button class="icon-btn" onclick="goHome()"><i class="fas fa-home"></i></button>
             <div class="score-container">
-                <div class="score-box">
-                    <span>BEST</span>
-                    <span id="best-score">0</span>
-                </div>
-                <div class="score-box main-score">
-                    <span>SCORE</span>
-                    <span id="score">0</span>
-                </div>
+                <div class="score-box"><span>BEST</span><span id="best-score">0</span></div>
+                <div class="score-box main"><span>SCORE</span><span id="score">0</span></div>
             </div>
             <button class="icon-btn" onclick="toggleSound()"><i class="fas fa-volume-up" id="sound-icon"></i></button>
         </div>
@@ -61,18 +61,12 @@
     <div id="game-over-modal" class="hidden">
         <div class="modal-content">
             <h2>NO MOVES!</h2>
-            <div class="final-score-box">
-                <p>Score: <span id="final-score">0</span></p>
-            </div>
-            
+            <p>Score: <span id="final-score">0</span></p>
             <button class="revive-btn" onclick="reviveGame()">
-                <i class="fas fa-bomb"></i> BLAST BOARD (Revive)
+                <i class="fas fa-bomb"></i> BLAST AREA (Revive)
             </button>
-            
-            <button class="restart-btn-modal" onclick="restartGame()">
-                <i class="fas fa-redo"></i> Try Again
-            </button>
-            <button class="home-btn-modal" onclick="goHome()">Exit</button>
+            <button class="restart-btn" onclick="restartGame()">Try Again</button>
+            <button class="exit-btn" onclick="goHome()">Exit</button>
         </div>
     </div>
 
