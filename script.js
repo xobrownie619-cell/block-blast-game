@@ -1,3 +1,6 @@
+// --- CONFIGURATION ---
+const DRAG_OFFSET_Y = 100; // How many pixels above finger the block floats
+
 // --- DOM ELEMENTS ---
 const splashScreen = document.getElementById('splash-screen');
 const modeScreen = document.getElementById('mode-screen');
@@ -17,11 +20,9 @@ let bestScore = localStorage.getItem('blockBlastBest') || 0;
 let gridSize = 8;
 let isSoundOn = true;
 
-// Init Best Score
 if(bestElement) bestElement.innerText = bestScore;
 
-// --- NAVIGATION FUNCTIONS ---
-
+// --- NAVIGATION ---
 window.goToModes = function() {
     splashScreen.classList.add('hidden');
     modeScreen.classList.remove('hidden');
@@ -48,31 +49,26 @@ window.toggleSound = function() {
 }
 
 // --- GAME LOGIC ---
-
 const SHAPE_TYPES = [
-    { matrix: [[1]], color: '#ffcc00' }, // Yellow 1x1
-    { matrix: [[1, 1, 1]], color: '#00ccff' }, // Cyan Line
+    { matrix: [[1]], color: '#ffcc00' },
+    { matrix: [[1, 1, 1]], color: '#00ccff' },
     { matrix: [[1], [1], [1]], color: '#00ccff' }, 
-    { matrix: [[1, 1], [1, 1]], color: '#ff0055' }, // Red Square
-    { matrix: [[1, 1, 1], [0, 1, 0]], color: '#aa00ff' }, // Purple T
-    { matrix: [[1, 1], [1, 0]], color: '#00ff99' }, // Green L
-    { matrix: [[1, 1, 1, 1]], color: '#ff5500' } // Orange Long
+    { matrix: [[1, 1], [1, 1]], color: '#ff0055' },
+    { matrix: [[1, 1, 1], [0, 1, 0]], color: '#aa00ff' },
+    { matrix: [[1, 1], [1, 0]], color: '#00ff99' },
+    { matrix: [[1, 1, 1, 1]], color: '#ff5500' }
 ];
 
 function initGame() {
-    // Reset Grid
     grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(0));
     score = 0;
     if(scoreElement) scoreElement.innerText = 0;
 
-    // Responsive Grid Size calculation
     gridElement.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
     gridElement.style.gridTemplateRows = `repeat(${gridSize}, 1fr)`;
 
-    // Calculate width to fit screen (max 90% of screen width)
     const screenWidth = window.innerWidth;
-    const maxBoardSize = Math.min(screenWidth * 0.9, 400); // Max 400px or 90% width
-    
+    const maxBoardSize = Math.min(screenWidth * 0.9, 400); 
     gridElement.style.width = maxBoardSize + 'px';
     gridElement.style.height = maxBoardSize + 'px';
 
@@ -86,10 +82,9 @@ function renderGrid() {
         for (let c = 0; c < gridSize; c++) {
             const cell = document.createElement('div');
             cell.classList.add('cell');
-            cell.id = `c-${r}-${c}`; // ID for ghosting
+            cell.id = `c-${r}-${c}`;
             cell.dataset.r = r;
             cell.dataset.c = c;
-            
             if (grid[r][c] !== 0) {
                 cell.classList.add('taken');
                 cell.style.backgroundColor = grid[r][c];
@@ -127,13 +122,12 @@ function createShapeOption() {
         });
     });
 
-    // Add drag listeners
     el.addEventListener('touchstart', handleStart, {passive: false});
     el.addEventListener('mousedown', handleStart);
     shapesContainer.appendChild(el);
 }
 
-// --- DRAG & DROP LOGIC ---
+// --- DRAG LOGIC WITH OFFSET ---
 let dragEl = null, mirrorEl = null;
 let currentMat = null, currentCol = null;
 
@@ -146,12 +140,15 @@ function handleStart(e) {
     currentMat = JSON.parse(dragEl.dataset.matrix);
     currentCol = dragEl.dataset.color;
 
+    // Clone for dragging
     mirrorEl = original.cloneNode(true);
     mirrorEl.classList.add('draggable-mirror');
     mirrorEl.style.width = original.offsetWidth + 'px';
     document.body.appendChild(mirrorEl);
 
-    moveMirror(e.touches ? e.touches[0] : e);
+    // Initial Move
+    const touch = e.touches ? e.touches[0] : e;
+    moveMirror(touch);
 
     document.addEventListener('touchmove', handleMove, {passive: false});
     document.addEventListener('touchend', handleEnd);
@@ -161,17 +158,21 @@ function handleStart(e) {
 
 function handleMove(e) {
     const event = e.touches ? e.touches[0] : e;
-    e.preventDefault(); // Stop scroll
+    e.preventDefault();
     moveMirror(event);
     
-    // Ghost Logic
-    const elBelow = document.elementFromPoint(event.clientX, event.clientY - 80);
+    // Check collision using the OFFSET coordinate (where the visual block is)
+    const checkX = event.clientX;
+    const checkY = event.clientY - DRAG_OFFSET_Y; // Look ABOVE finger
+    
+    const elBelow = document.elementFromPoint(checkX, checkY);
     const cell = elBelow ? elBelow.closest('.cell') : null;
     clearGhost();
     
     if (cell) {
         const r = parseInt(cell.dataset.r);
         const c = parseInt(cell.dataset.c);
+        // Center the shape on that cell
         const rOff = Math.floor(currentMat.length/2);
         const cOff = Math.floor(currentMat[0].length/2);
         drawGhost(r - rOff, c - cOff);
@@ -180,8 +181,9 @@ function handleMove(e) {
 
 function moveMirror(e) {
     if(mirrorEl) {
+        // Visual position: Center horizontally, shift UP vertically
         mirrorEl.style.left = (e.clientX - mirrorEl.offsetWidth/2) + 'px';
-        mirrorEl.style.top = (e.clientY - 80) + 'px';
+        mirrorEl.style.top = (e.clientY - DRAG_OFFSET_Y - mirrorEl.offsetHeight/2) + 'px';
     }
 }
 
@@ -213,7 +215,11 @@ function handleEnd(e) {
     mirrorEl = null;
     clearGhost();
 
-    const elBelow = document.elementFromPoint(event.clientX, event.clientY - 80);
+    // Final check using OFFSET
+    const checkX = event.clientX;
+    const checkY = event.clientY - DRAG_OFFSET_Y;
+    
+    const elBelow = document.elementFromPoint(checkX, checkY);
     const cell = elBelow ? elBelow.closest('.cell') : null;
 
     if (cell) {
@@ -253,28 +259,25 @@ function placeShape(row, col) {
     }
     
     if(isSoundOn && navigator.vibrate) navigator.vibrate(20);
-    dragEl.style.visibility = 'hidden'; // Hide original
+    dragEl.style.visibility = 'hidden';
     renderGrid();
     checkLines();
     
     const remaining = Array.from(shapesContainer.children).filter(el => el.style.visibility !== 'hidden');
-    if (remaining.length === 0) {
-        generateNewShapes();
-    } else {
-        checkGameOver();
-    }
+    if (remaining.length === 0) generateNewShapes();
+    else checkGameOver();
 }
 
 function checkLines() {
     let cleared = 0;
-    // Check Rows
+    // Rows
     for(let r=0; r<gridSize; r++) {
         if(grid[r].every(v => v !== 0)) {
             grid[r].fill(0);
             cleared++;
         }
     }
-    // Check Cols
+    // Cols
     for(let c=0; c<gridSize; c++) {
         let full = true;
         for(let r=0; r<gridSize; r++) if(grid[r][c] === 0) full = false;
@@ -286,11 +289,11 @@ function checkLines() {
     
     if (cleared > 0) {
         score += cleared * 100;
-        scoreElement.innerText = score;
+        if(scoreElement) scoreElement.innerText = score;
         if(score > bestScore) {
             bestScore = score;
             localStorage.setItem('blockBlastBest', score);
-            bestElement.innerText = bestScore;
+            if(bestElement) bestElement.innerText = bestScore;
         }
         renderGrid();
     }
@@ -299,7 +302,6 @@ function checkLines() {
 function checkGameOver() {
     const remaining = Array.from(shapesContainer.children).filter(el => el.style.visibility !== 'hidden');
     let possible = false;
-    
     for (let el of remaining) {
         const mat = JSON.parse(el.dataset.matrix);
         for(let r=0; r<gridSize; r++) {
@@ -310,15 +312,13 @@ function checkGameOver() {
         }
         if(possible) break;
     }
-
     if (!possible) {
-        finalScore.innerText = score;
+        if(finalScore) finalScore.innerText = score;
         modal.classList.remove('hidden');
     }
 }
 
 window.reviveGame = function() {
-    // Clear center 4x4
     const start = Math.floor(gridSize/2) - 2;
     for(let r=start; r<start+4; r++) {
         for(let c=start; c<start+4; c++) grid[r][c] = 0;
@@ -333,7 +333,7 @@ window.restartGame = function() {
     initGame();
 }
 
-// Background Animation (Floating Cubes)
+// Init background particles
 const bg = document.getElementById('home-bg');
 if(bg) {
     for(let i=0; i<15; i++){
