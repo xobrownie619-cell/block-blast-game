@@ -3,30 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Block Blast Pro</title>
+    <title>Block Blast Adventure</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
 
-    <div class="game-wrapper">
+    <div id="home-screen">
+        <div class="animated-bg" id="home-bg"></div>
+        <div class="home-content">
+            <h1 class="logo">BLOCK<br>BLAST</h1>
+            <p class="subtitle">ADVENTURE</p>
+            
+            <div class="difficulty-select">
+                <p>SELECT MODE</p>
+                <div class="mode-buttons">
+                    <button class="mode-btn selected" onclick="setDifficulty(8)">
+                        <i class="fas fa-cube"></i> Classic (8x8)
+                    </button>
+                    <button class="mode-btn" onclick="setDifficulty(10)">
+                        <i class="fas fa-cubes"></i> Master (10x10)
+                    </button>
+                </div>
+            </div>
+
+            <button class="play-btn-large" onclick="startGame()">
+                PLAY <i class="fas fa-play"></i>
+            </button>
+        </div>
+    </div>
+
+    <div class="game-wrapper hidden" id="game-wrapper">
         <div class="header">
-            <h1>Block Blast</h1>
+            <button class="icon-btn" onclick="goHome()"><i class="fas fa-home"></i></button>
+            <div class="score-container">
+                <div class="score-box">
+                    <span>BEST</span>
+                    <span id="best-score">0</span>
+                </div>
+                <div class="score-box main-score">
+                    <span>SCORE</span>
+                    <span id="score">0</span>
+                </div>
+            </div>
+            <button class="icon-btn" onclick="toggleSound()"><i class="fas fa-volume-up" id="sound-icon"></i></button>
         </div>
         
         <div class="grid-container">
             <div class="grid" id="game-grid"></div>
+            <div id="particles-container"></div>
+            <div id="float-text-container"></div>
         </div>
 
         <div class="shapes-container" id="shapes-container"></div>
     </div>
 
-    <div class="floating-score">Score: <span id="score">0</span></div>
-
     <div id="game-over-modal" class="hidden">
         <div class="modal-content">
-            <h2>No Moves Left!</h2>
-            <p>Score: <span id="final-score">0</span></p>
-            <button onclick="restartGame()">Try Again</button>
+            <h2>NO MOVES!</h2>
+            <div class="final-score-box">
+                <p>Score: <span id="final-score">0</span></p>
+            </div>
+            
+            <button class="revive-btn" onclick="reviveGame()">
+                <i class="fas fa-bomb"></i> BLAST BOARD (Revive)
+            </button>
+            
+            <button class="restart-btn-modal" onclick="restartGame()">
+                <i class="fas fa-redo"></i> Try Again
+            </button>
+            <button class="home-btn-modal" onclick="goHome()">Exit</button>
         </div>
     </div>
 
