@@ -18,33 +18,33 @@ let gridSize = 8;
 let isSoundOn = true;
 
 // Init Best Score
-bestElement.innerText = bestScore;
+if(bestElement) bestElement.innerText = bestScore;
 
 // --- NAVIGATION FUNCTIONS ---
 
-function goToModes() {
+window.goToModes = function() {
     splashScreen.classList.add('hidden');
     modeScreen.classList.remove('hidden');
 }
 
-function goBackHome() {
+window.goBackHome = function() {
     modal.classList.add('hidden');
     gameWrapper.classList.add('hidden');
     modeScreen.classList.add('hidden');
     splashScreen.classList.remove('hidden');
 }
 
-function startGame(size) {
+window.startGame = function(size) {
     gridSize = size;
     modeScreen.classList.add('hidden');
     gameWrapper.classList.remove('hidden');
     initGame();
 }
 
-function toggleSound() {
+window.toggleSound = function() {
     isSoundOn = !isSoundOn;
     const icon = document.getElementById('sound-icon');
-    icon.className = isSoundOn ? 'fas fa-volume-up' : 'fas fa-volume-mute';
+    if(icon) icon.className = isSoundOn ? 'fas fa-volume-up' : 'fas fa-volume-mute';
 }
 
 // --- GAME LOGIC ---
@@ -63,7 +63,7 @@ function initGame() {
     // Reset Grid
     grid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(0));
     score = 0;
-    scoreElement.innerText = 0;
+    if(scoreElement) scoreElement.innerText = 0;
 
     // Responsive Grid Size calculation
     gridElement.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
@@ -149,7 +149,7 @@ function handleStart(e) {
     mirrorEl = original.cloneNode(true);
     mirrorEl.classList.add('draggable-mirror');
     mirrorEl.style.width = original.offsetWidth + 'px';
-    document.body.appendChild(mirrorElement = mirrorEl);
+    document.body.appendChild(mirrorEl);
 
     moveMirror(e.touches ? e.touches[0] : e);
 
@@ -209,7 +209,7 @@ function clearGhost() {
 
 function handleEnd(e) {
     const event = e.changedTouches ? e.changedTouches[0] : e;
-    mirrorEl.remove();
+    if(mirrorEl) mirrorEl.remove();
     mirrorEl = null;
     clearGhost();
 
@@ -290,7 +290,7 @@ function checkLines() {
         if(score > bestScore) {
             bestScore = score;
             localStorage.setItem('blockBlastBest', score);
-            bestElement.innerText = score;
+            bestElement.innerText = bestScore;
         }
         renderGrid();
     }
@@ -317,7 +317,7 @@ function checkGameOver() {
     }
 }
 
-function reviveGame() {
+window.reviveGame = function() {
     // Clear center 4x4
     const start = Math.floor(gridSize/2) - 2;
     for(let r=start; r<start+4; r++) {
@@ -325,19 +325,20 @@ function reviveGame() {
     }
     modal.classList.add('hidden');
     renderGrid();
-    // Maybe give new shapes?
     generateNewShapes();
 }
 
-function restartGame() {
+window.restartGame = function() {
     modal.classList.add('hidden');
     initGame();
 }
 
-// Background Animation
+// Background Animation (Floating Cubes)
 const bg = document.getElementById('home-bg');
-for(let i=0; i<15; i++){
-    const d = document.createElement('div');
-    d.style.cssText = `position:absolute; background:rgba(255,255,255,0.05); border-radius:10%; width:${Math.random()*50+20}px; height:${Math.random()*50+20}px; left:${Math.random()*100}%; top:${Math.random()*100}%; animation:pulse ${Math.random()*5+2}s infinite`;
-    bg.appendChild(d);
+if(bg) {
+    for(let i=0; i<15; i++){
+        const d = document.createElement('div');
+        d.style.cssText = `position:absolute; background:rgba(255,255,255,0.05); border-radius:10%; width:${Math.random()*50+20}px; height:${Math.random()*50+20}px; left:${Math.random()*100}%; top:${Math.random()*100}%; animation:pulse ${Math.random()*5+2}s infinite`;
+        bg.appendChild(d);
+    }
 }
