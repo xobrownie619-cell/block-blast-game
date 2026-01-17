@@ -1,13 +1,12 @@
 :root {
     --bg-dark: #121225;
-    --primary: #4e54c8;
-    --secondary: #8f94fb;
+    --grid-bg: #1e2a47;
     --accent: #ff0055;
-    --yellow: #ffcc00;
+    --primary: #4e54c8;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
     background-color: var(--bg-dark);
     color: white;
     margin: 0;
@@ -17,174 +16,100 @@ body {
     user-select: none;
 }
 
-/* --- HOME SCREEN --- */
-#home-screen {
-    position: fixed;
-    top: 0; left: 0;
+/* --- SCREENS --- */
+#splash-screen, #mode-screen {
+    position: fixed; top: 0; left: 0;
     width: 100%; height: 100%;
-    z-index: 100;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: flex; justify-content: center; align-items: center;
     background: linear-gradient(135deg, #1f1c2c, #928dab);
+    z-index: 100;
 }
+.hidden { display: none !important; }
 
-.home-content {
-    z-index: 2;
-    text-align: center;
-    width: 80%;
-}
+.content-center { text-align: center; z-index: 2; position: relative; }
 
 .logo {
-    font-size: 50px;
-    font-weight: 900;
-    margin: 0;
+    font-size: 60px; font-weight: 900; margin: 0;
     background: -webkit-linear-gradient(#ffdd00, #ff5500);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 5px 15px rgba(255, 100, 0, 0.3);
-    animation: pulse 2s infinite;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 5px 15px rgba(255,100,0,0.4));
+    animation: floatLogo 3s ease-in-out infinite;
 }
 
-.subtitle {
-    color: #ccc;
-    letter-spacing: 5px;
-    margin-bottom: 40px;
-    font-size: 14px;
+.main-btn {
+    background: white; color: var(--primary);
+    padding: 15px 50px; font-size: 20px; font-weight: bold;
+    border: none; border-radius: 50px; margin-top: 40px;
+    box-shadow: 0 0 20px rgba(255,255,255,0.4);
+    animation: pulse 1.5s infinite;
 }
 
-.mode-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-bottom: 30px;
+/* MODE CARDS */
+.mode-cards { display: flex; gap: 20px; margin-top: 30px; }
+.mode-card {
+    background: rgba(255,255,255,0.1);
+    padding: 30px; border-radius: 20px;
+    border: 2px solid rgba(255,255,255,0.2);
+    cursor: pointer; transition: 0.2s;
 }
+.mode-card:active { transform: scale(0.95); background: rgba(255,255,255,0.2); }
+.mode-card i { font-size: 40px; margin-bottom: 10px; color: #ffcc00; }
 
-.mode-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: white;
-    padding: 10px 15px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: 0.2s;
-}
+.back-btn { background: none; border: none; color: #aaa; margin-top: 30px; padding: 10px; }
 
-.mode-btn.selected {
-    background: var(--primary);
-    border-color: var(--secondary);
-    box-shadow: 0 0 15px var(--primary);
-}
-
-.play-btn-large {
-    background: linear-gradient(45deg, #ff0055, #ff00aa);
-    color: white;
-    border: none;
-    padding: 20px 60px;
-    font-size: 24px;
-    font-weight: bold;
-    border-radius: 50px;
-    cursor: pointer;
-    box-shadow: 0 10px 30px rgba(255, 0, 85, 0.4);
-    transition: transform 0.1s;
-}
-
-.play-btn-large:active { transform: scale(0.95); }
-
-/* Animated BG Shapes */
-.animated-bg {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    overflow: hidden;
-    z-index: 1;
-}
-
-/* --- GAME AREA --- */
-.game-wrapper.hidden { display: none; }
-
+/* --- GAME UI --- */
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    width: 100%;
-    box-sizing: border-box;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 20px; width: 100%; box-sizing: border-box;
 }
-
-.icon-btn {
-    background: none; border: none; color: white; font-size: 20px; cursor: pointer;
-}
-
-.score-container { display: flex; gap: 20px; }
-.score-box { text-align: center; }
-.score-box span { display: block; }
-.score-box span:first-child { font-size: 10px; color: #aaa; }
+.score-box { text-align: center; background: rgba(0,0,0,0.3); padding: 5px 15px; border-radius: 10px; }
+.score-box span:first-child { font-size: 10px; color: #aaa; display: block; }
 .score-box span:last-child { font-size: 20px; font-weight: bold; }
 
 .grid {
-    display: grid;
-    gap: 4px;
-    background-color: #1e2a47;
-    padding: 8px;
-    border-radius: 12px;
-    margin: 10px auto;
-    /* Responsive sizing logic in JS or simple CSS */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    display: grid; gap: 4px; background: var(--grid-bg);
+    padding: 8px; border-radius: 12px; margin: 0 auto;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
 }
+.cell { background: #2b3b5f; border-radius: 6px; transition: background 0.1s; }
+.taken { box-shadow: inset 0 -4px 0 rgba(0,0,0,0.3); }
 
-.cell {
-    background-color: #2b3b5f;
-    border-radius: 6px;
-}
-.taken {
-    box-shadow: inset 0 -4px 0 rgba(0,0,0,0.2);
-}
+/* GHOST PREVIEW */
+.ghost { opacity: 0.5; box-shadow: none !important; }
 
+/* SHAPES */
 .shapes-container {
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    height: 140px;
-    width: 100%;
+    display: flex; justify-content: space-evenly; align-items: center;
+    height: 140px; width: 100%; position: absolute; bottom: 0;
 }
-
 .shape-option { display: grid; gap: 2px; }
 .mini-cell { width: 25px; height: 25px; border-radius: 4px; }
+
+/* MODAL */
+#game-over-modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95); z-index: 2000;
+    display: flex; justify-content: center; align-items: center;
+}
+.modal-content {
+    background: #1e2a47; padding: 40px; border-radius: 20px;
+    text-align: center; border: 2px solid var(--accent); width: 80%;
+}
+.revive-btn {
+    background: #ffcc00; color: #000; width: 100%; padding: 15px;
+    border: none; border-radius: 10px; font-weight: bold; margin-bottom: 10px;
+}
+.restart-btn {
+    background: var(--primary); color: white; width: 100%; padding: 15px;
+    border: none; border-radius: 10px; margin-bottom: 10px;
+}
+.exit-btn { background: none; border: 1px solid #555; color: #888; padding: 10px 30px; border-radius: 20px; }
 
 /* DRAGGING */
 .draggable-mirror {
     position: fixed; pointer-events: none; z-index: 999;
-    opacity: 0.9; transform: scale(1.1) translateY(-70px);
+    opacity: 0.9; transform: scale(1.1) translateY(-80px);
 }
 
-/* MODAL */
-.hidden { display: none !important; }
-#game-over-modal {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.9);
-    display: flex; justify-content: center; align-items: center;
-    z-index: 2000;
-}
-.modal-content {
-    background: #1e2a47; padding: 40px; border-radius: 20px;
-    text-align: center; border: 2px solid #4e54c8;
-    width: 80%; max-width: 300px;
-}
-.revive-btn {
-    background: #ffcc00; color: #333; width: 100%; margin-bottom: 10px;
-    border: none; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer;
-}
-.restart-btn-modal {
-    background: #4e54c8; color: white; width: 100%; margin-bottom: 10px;
-    border: none; padding: 15px; border-radius: 10px; cursor: pointer;
-}
-.home-btn-modal {
-    background: transparent; border: 1px solid #666; color: #aaa;
-    padding: 10px 20px; border-radius: 20px; cursor: pointer;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
+@keyframes floatLogo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
