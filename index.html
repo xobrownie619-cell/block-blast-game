@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>Block Blast Final</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -11,10 +12,11 @@
 
     <div id="splash-screen" class="full-screen-center">
         <div class="animated-bg" id="home-bg"></div>
+        
         <div class="content-box">
             <h1 class="logo">BLOCK<br>BLAST</h1>
             <p class="subtitle">ULTIMATE EDITION</p>
-            <button class="pulse-btn" onclick="goToModes()">
+            <button class="pulse-btn" id="start-btn" onclick="goToModes()">
                 TAP TO START
             </button>
         </div>
@@ -66,11 +68,9 @@
         <div class="modal-box">
             <h2>NO MOVES!</h2>
             <p>Score: <span id="final-score">0</span></p>
-            
             <button class="revive-btn" onclick="reviveGame()">
                 <i class="fas fa-bomb"></i> BLAST BOARD (Revive)
             </button>
-            
             <button class="restart-btn" onclick="restartGame()">Try Again</button>
             <button class="exit-btn" onclick="goBackHome()">Exit Game</button>
         </div>
